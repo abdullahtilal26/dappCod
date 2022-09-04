@@ -4,7 +4,6 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "hardhat/console.sol";
 import "erc721a/contracts/ERC721A.sol";
 
 /// @title NFTA
