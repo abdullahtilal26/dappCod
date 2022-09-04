@@ -11,27 +11,32 @@ import "erc721a/contracts/ERC721A.sol";
 /// @author Adam Bawany
 /// @custom:experimental This is an experimental contract.
 contract NFTA is ERC721A, Ownable {
+
     using Strings for uint256;
-    string public baseURI;
-    string public baseExtension = ".json";
-    uint256 public cost = 0.000003 ether;
-    uint256 public maxSupply = 3333;
-    uint8 public maxMintAmount = 3;
+    
     bool public paused = false;
     bool public revealed = false;
-    string public notRevealedUri;
-    mapping(address => bool) whitelistedAddressesO;
-    mapping(address => bool) whitelistedAddressesL;
     bool public onlyWhiteListed = true;
     bool public publicSale = false;//only specified here.Implemented if needed in future
+    
+    uint8 public maxMintAmount = 3;
     uint8 private nftPerAddressLimitFreeO =3; 
     uint8 private nftPerAddressLimitFreeL =2;
     uint8 private nftPerAddressLimitO =3;
     uint8 private nftPerAddressLimitL =3;
     uint8 private nftPerAddressLimitFreePublic =1;
     uint8 private nftPerAddressLimitPublic =3;
-  
 
+    uint256 public cost = 0.000003 ether;
+    uint256 public maxSupply = 3333;
+        
+    string public baseURI;
+    string public baseExtension = ".json";
+    string public notRevealedUri;
+
+    mapping(address => bool) whitelistedAddressesO;
+    mapping(address => bool) whitelistedAddressesL;
+  
     constructor(
         string memory _name,
         string memory _symbol,
@@ -61,10 +66,10 @@ contract NFTA is ERC721A, Ownable {
     
     ///@notice it is the helper mint function which cheks if the mint amount is less than free mint available then it mint wwithout charges.Otherwise it calculates mint amount that need to be charged,alculate and verify the charges and then mint the tokens
     ///@dev  if the mint amount is less than free mint available,then we mint without checking the amount.Otherwise we first calculate how many tokens need to be minted are paid,then checkes the amount send by the minter and then mints the tokens
-    ///@param senderAmount is the amount send by minter while minting,_mintAmount is the number of tokens to mint,freeMintAvailable is the number of free tokens that are left for the specified addresss.
+    ///@param _mintAmount is the number of tokens to mint,senderAmount is the amount send by minter while minting,freeMintAvailable is the number of free tokens that are left for the specified addresss.
     function mint(
-        uint256 senderAmount,
         uint8 _mintAmount,
+        uint256 senderAmount,
         uint256 freeMintAvailable
     ) private {
          if (_mintAmount <= freeMintAvailable) {
@@ -107,14 +112,14 @@ contract NFTA is ERC721A, Ownable {
                 nftPerAddressLimitFreeO
             );
 
-            mint(msg.value, _mintAmount, freeMintAvailable);
+            mint(_mintAmount,msg.value,freeMintAvailable);
            
         } else if (isWhiteListedL(msg.sender)) {
             require(ownerTokenCount < nftPerAddressLimitL, "Max lmit of tokens exceeded for L list");
             uint256 freeMintAvailable = getFreeMintAvailableAmount(
                 nftPerAddressLimitFreeL
             );
-            mint(msg.value, _mintAmount, freeMintAvailable);
+            mint(_mintAmount,msg.value,freeMintAvailable);
         }
 }
 
@@ -131,7 +136,7 @@ contract NFTA is ERC721A, Ownable {
             nftPerAddressLimitFreePublic
         );
 
-         mint(msg.value, _mintAmount, freeMintAvailable);
+         mint( _mintAmount,msg.value,freeMintAvailable);
     }
 
     /// @notice it stops/resume the whitelisting minting process
@@ -344,4 +349,3 @@ contract NFTA is ERC721A, Ownable {
         require(os);
     }
 }
-
